@@ -5,93 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { TrendingUp, Shield, BookOpen, Users, Mail, Lock, User, Phone, Calendar, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { TrendingUp, Shield, BookOpen, Users } from "lucide-react";
 
 export default function Home() {
-  const [view, setView] = useState<"landing" | "auth" | "dashboard">("landing");
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
-  const [registerStep, setRegisterStep] = useState(1);
+  const [step, setStep] = useState<"landing" | "register" | "dashboard">("landing");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
-
   const [formData, setFormData] = useState({
     name: "",
     age: "",
     email: "",
     phone: "",
-    password: "",
-    confirmPassword: "",
   });
 
-  const [validation, setValidation] = useState({
-    nameValid: false,
-    ageValid: false,
-    emailValid: false,
-    phoneValid: false,
-    passwordValid: false,
-    passwordMatch: false,
-  });
-
-  // Validação em tempo real
-  const validateField = (field: string, value: string) => {
-    switch (field) {
-      case "name":
-        setValidation(prev => ({ ...prev, nameValid: value.length >= 3 }));
-        break;
-      case "age":
-        const age = parseInt(value);
-        setValidation(prev => ({ ...prev, ageValid: age >= 18 && age <= 120 }));
-        break;
-      case "email":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        setValidation(prev => ({ ...prev, emailValid: emailRegex.test(value) }));
-        break;
-      case "phone":
-        const phoneRegex = /^\(\d{2}\)\s?\d{4,5}-?\d{4}$/;
-        setValidation(prev => ({ ...prev, phoneValid: phoneRegex.test(value) || value.length >= 10 }));
-        break;
-      case "password":
-        setValidation(prev => ({ 
-          ...prev, 
-          passwordValid: value.length >= 6,
-          passwordMatch: formData.confirmPassword === value
-        }));
-        break;
-      case "confirmPassword":
-        setValidation(prev => ({ ...prev, passwordMatch: formData.password === value }));
-        break;
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    validateField(field, value);
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    setView("dashboard");
-  };
-
-  const handleRegisterNext = () => {
-    if (registerStep === 1 && validation.nameValid && validation.ageValid) {
-      setRegisterStep(2);
-    } else if (registerStep === 2 && validation.emailValid && validation.phoneValid) {
-      setRegisterStep(3);
-    } else if (registerStep === 3 && validation.passwordValid && validation.passwordMatch && acceptedTerms) {
-      setView("dashboard");
+    if (acceptedTerms) {
+      setStep("dashboard");
     }
   };
 
-  const canProceedStep1 = validation.nameValid && validation.ageValid;
-  const canProceedStep2 = validation.emailValid && validation.phoneValid;
-  const canProceedStep3 = validation.passwordValid && validation.passwordMatch && acceptedTerms;
-
-  if (view === "landing") {
+  if (step === "landing") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0B0B0B] via-[#1a1a1a] to-[#0B0B0B]">
         {/* Header */}
@@ -104,7 +37,7 @@ export default function Home() {
               </span>
             </div>
             <Button
-              onClick={() => setView("auth")}
+              onClick={() => setStep("register")}
               className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold"
             >
               Começar Agora
@@ -126,7 +59,7 @@ export default function Home() {
               Educação financeira com foco em transparência e segurança.
             </p>
             <Button
-              onClick={() => setView("auth")}
+              onClick={() => setStep("register")}
               size="lg"
               className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold text-lg px-8 py-6"
             >
@@ -201,419 +134,147 @@ export default function Home() {
     );
   }
 
-  if (view === "auth") {
+  if (step === "register") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0B0B0B] via-[#1a1a1a] to-[#0B0B0B] flex items-center justify-center p-4">
-        <div className="w-full max-w-5xl">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Left Side - Branding */}
-            <div className="hidden lg:block space-y-6">
-              <div className="flex items-center gap-3 mb-8">
-                <TrendingUp className="w-12 h-12 text-emerald-500" />
-                <span className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                  TradeVision Pro
-                </span>
-              </div>
-              
-              <h2 className="text-4xl font-bold leading-tight">
-                Análise Técnica
-                <span className="block text-emerald-400">Profissional</span>
-              </h2>
-              
-              <p className="text-gray-400 text-lg">
-                Junte-se a milhares de traders que confiam em dados reais e transparentes para suas análises.
-              </p>
-
-              <div className="space-y-4 pt-6">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-500 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold mb-1">Dados em Tempo Real</h4>
-                    <p className="text-sm text-gray-400">APIs certificadas e verificáveis</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-cyan-500 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold mb-1">100% Transparente</h4>
-                    <p className="text-sm text-gray-400">Todas as fontes identificadas</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-purple-500 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold mb-1">Educação Financeira</h4>
-                    <p className="text-sm text-gray-400">Aprenda análise técnica profissional</p>
-                  </div>
-                </div>
-              </div>
+        <div className="w-full max-w-2xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <TrendingUp className="w-10 h-10 text-emerald-500" />
+              <span className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                TradeVision Pro
+              </span>
             </div>
+            <h2 className="text-2xl font-bold mb-2">Criar Conta</h2>
+            <p className="text-gray-400">Preencha seus dados para começar</p>
+          </div>
 
-            {/* Right Side - Auth Forms */}
-            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 shadow-2xl">
-              {/* Toggle Login/Register */}
-              <div className="flex gap-2 mb-8 bg-gray-800/50 rounded-xl p-1">
-                <button
-                  onClick={() => {
-                    setAuthMode("login");
-                    setRegisterStep(1);
-                  }}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                    authMode === "login"
-                      ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => {
-                    setAuthMode("register");
-                    setRegisterStep(1);
-                  }}
-                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                    authMode === "register"
-                      ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-                      : "text-gray-400 hover:text-white"
-                  }`}
-                >
-                  Criar Conta
-                </button>
+          {/* Registration Form */}
+          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+            <form onSubmit={handleRegister} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-gray-300">Nome Completo *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="bg-gray-800/50 border-gray-700 text-white focus:border-emerald-500"
+                  placeholder="Seu nome completo"
+                />
               </div>
 
-              {/* LOGIN FORM */}
-              {authMode === "login" && (
-                <form onSubmit={handleLogin} className="space-y-6">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-2">Bem-vindo de volta!</h3>
-                    <p className="text-gray-400 text-sm">Entre com suas credenciais</p>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-gray-300">Idade *</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  required
+                  min="18"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  className="bg-gray-800/50 border-gray-700 text-white focus:border-emerald-500"
+                  placeholder="Sua idade (mínimo 18 anos)"
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-gray-300">E-mail</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        required
-                        value={loginData.email}
-                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 text-white pl-11 focus:border-emerald-500 h-12"
-                        placeholder="seu@email.com"
-                      />
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-300">E-mail *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="bg-gray-800/50 border-gray-700 text-white focus:border-emerald-500"
+                  placeholder="seu@email.com"
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-gray-300">Senha</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        required
-                        value={loginData.password}
-                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                        className="bg-gray-800/50 border-gray-700 text-white pl-11 focus:border-emerald-500 h-12"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-gray-300">Número de Telefone *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="bg-gray-800/50 border-gray-700 text-white focus:border-emerald-500"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold h-12"
-                  >
-                    Entrar
-                  </Button>
-
-                  <p className="text-center text-sm text-gray-500">
-                    Esqueceu sua senha?{" "}
-                    <button type="button" className="text-emerald-500 hover:text-emerald-400 font-semibold">
-                      Recuperar
-                    </button>
+              {/* Terms and Conditions */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 space-y-4">
+                <h4 className="font-semibold text-yellow-500 flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Termos de Uso e Aviso de Risco
+                </h4>
+                <div className="text-sm text-gray-300 space-y-2 max-h-48 overflow-y-auto">
+                  <p className="font-semibold">AVISO DE RISCO:</p>
+                  <p>
+                    O investimento em ações, criptomoedas e outros ativos financeiros envolve riscos significativos
+                    e pode resultar em perda parcial ou total do capital investido.
                   </p>
-                </form>
-              )}
-
-              {/* REGISTER FORM - MULTI-STEP */}
-              {authMode === "register" && (
-                <div className="space-y-6">
-                  {/* Progress Indicator */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Passo {registerStep} de 3</span>
-                      <span className="text-emerald-500 font-semibold">{Math.round((registerStep / 3) * 100)}%</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className={`h-2 flex-1 rounded-full transition-all ${registerStep >= 1 ? "bg-gradient-to-r from-emerald-500 to-cyan-500" : "bg-gray-700"}`} />
-                      <div className={`h-2 flex-1 rounded-full transition-all ${registerStep >= 2 ? "bg-gradient-to-r from-emerald-500 to-cyan-500" : "bg-gray-700"}`} />
-                      <div className={`h-2 flex-1 rounded-full transition-all ${registerStep >= 3 ? "bg-gradient-to-r from-emerald-500 to-cyan-500" : "bg-gray-700"}`} />
-                    </div>
-                  </div>
-
-                  {/* STEP 1 - Personal Info */}
-                  {registerStep === 1 && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">Informações Pessoais</h3>
-                        <p className="text-gray-400 text-sm">Vamos começar com o básico</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="name" className="text-gray-300">Nome Completo *</Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="name"
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={(e) => handleInputChange("name", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.name && (validation.nameValid ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="Seu nome completo"
-                          />
-                          {formData.name && validation.nameValid && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.name && !validation.nameValid && (
-                          <p className="text-xs text-red-500">Nome deve ter pelo menos 3 caracteres</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="age" className="text-gray-300">Idade *</Label>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="age"
-                            type="number"
-                            required
-                            min="18"
-                            max="120"
-                            value={formData.age}
-                            onChange={(e) => handleInputChange("age", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.age && (validation.ageValid ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="Sua idade"
-                          />
-                          {formData.age && validation.ageValid && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.age && !validation.ageValid && (
-                          <p className="text-xs text-red-500">Você deve ter pelo menos 18 anos</p>
-                        )}
-                      </div>
-
-                      <Button
-                        onClick={handleRegisterNext}
-                        disabled={!canProceedStep1}
-                        className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Próximo
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* STEP 2 - Contact Info */}
-                  {registerStep === 2 && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">Informações de Contato</h3>
-                        <p className="text-gray-400 text-sm">Como podemos te encontrar?</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-300">E-mail *</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => handleInputChange("email", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.email && (validation.emailValid ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="seu@email.com"
-                          />
-                          {formData.email && validation.emailValid && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.email && !validation.emailValid && (
-                          <p className="text-xs text-red-500">Digite um e-mail válido</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-gray-300">Telefone *</Label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="phone"
-                            type="tel"
-                            required
-                            value={formData.phone}
-                            onChange={(e) => handleInputChange("phone", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.phone && (validation.phoneValid ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="(00) 00000-0000"
-                          />
-                          {formData.phone && validation.phoneValid && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.phone && !validation.phoneValid && (
-                          <p className="text-xs text-red-500">Digite um telefone válido</p>
-                        )}
-                      </div>
-
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={() => setRegisterStep(1)}
-                          variant="outline"
-                          className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-800 h-12"
-                        >
-                          <ArrowLeft className="w-5 h-5 mr-2" />
-                          Voltar
-                        </Button>
-                        <Button
-                          onClick={handleRegisterNext}
-                          disabled={!canProceedStep2}
-                          className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Próximo
-                          <ArrowRight className="w-5 h-5 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 3 - Security & Terms */}
-                  {registerStep === 3 && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2">Segurança e Termos</h3>
-                        <p className="text-gray-400 text-sm">Proteja sua conta</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-gray-300">Senha *</Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="password"
-                            type="password"
-                            required
-                            value={formData.password}
-                            onChange={(e) => handleInputChange("password", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.password && (validation.passwordValid ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="Mínimo 6 caracteres"
-                          />
-                          {formData.password && validation.passwordValid && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.password && !validation.passwordValid && (
-                          <p className="text-xs text-red-500">Senha deve ter pelo menos 6 caracteres</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-gray-300">Confirmar Senha *</Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                          <Input
-                            id="confirmPassword"
-                            type="password"
-                            required
-                            value={formData.confirmPassword}
-                            onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                            className={`bg-gray-800/50 border-gray-700 text-white pl-11 h-12 transition-all ${
-                              formData.confirmPassword && (validation.passwordMatch ? "border-emerald-500" : "border-red-500")
-                            }`}
-                            placeholder="Repita sua senha"
-                          />
-                          {formData.confirmPassword && validation.passwordMatch && (
-                            <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          )}
-                        </div>
-                        {formData.confirmPassword && !validation.passwordMatch && (
-                          <p className="text-xs text-red-500">As senhas não coincidem</p>
-                        )}
-                      </div>
-
-                      {/* Terms */}
-                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 space-y-3">
-                        <h4 className="font-semibold text-yellow-500 flex items-center gap-2 text-sm">
-                          <Shield className="w-4 h-4" />
-                          Aviso de Risco e Termos de Uso
-                        </h4>
-                        <div className="text-xs text-gray-300 space-y-2 max-h-32 overflow-y-auto">
-                          <p>
-                            O investimento em ativos financeiros envolve riscos e pode resultar em perda de capital.
-                            As informações têm caráter educacional e não constituem recomendações de investimento.
-                          </p>
-                          <p>
-                            Dados fornecidos por APIs certificadas (Finnhub, Alpha Vantage, Polygon.io).
-                            Você deve ter 18+ anos e compreender os riscos do mercado financeiro.
-                          </p>
-                        </div>
-
-                        <div className="flex items-start gap-3 pt-3 border-t border-yellow-500/30">
-                          <Checkbox
-                            id="terms"
-                            checked={acceptedTerms}
-                            onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-                            className="mt-0.5"
-                          />
-                          <Label htmlFor="terms" className="text-xs text-gray-300 cursor-pointer leading-relaxed">
-                            Li e aceito os Termos de Uso. Compreendo que este app não oferece recomendações de investimento
-                            e estou ciente dos riscos do mercado financeiro.
-                          </Label>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={() => setRegisterStep(2)}
-                          variant="outline"
-                          className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-800 h-12"
-                        >
-                          <ArrowLeft className="w-5 h-5 mr-2" />
-                          Voltar
-                        </Button>
-                        <Button
-                          onClick={handleRegisterNext}
-                          disabled={!canProceedStep3}
-                          className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Criar Conta
-                          <CheckCircle2 className="w-5 h-5 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  <p>
+                    As informações e análises apresentadas neste aplicativo têm caráter estritamente educacional e informativo.
+                    Não constituem recomendações de investimento, consultoria financeira ou aconselhamento personalizado.
+                  </p>
+                  <p>
+                    O TradeVision Pro utiliza dados de mercado reais obtidos de fontes públicas e APIs financeiras certificadas
+                    (como Finnhub, Alpha Vantage, Yahoo Finance ou Polygon.io). Todas as fontes são identificadas e verificáveis.
+                  </p>
+                  <p className="font-semibold">RESPONSABILIDADE DO USUÁRIO:</p>
+                  <p>
+                    Você é o único responsável por suas decisões de investimento. Recomendamos consultar um profissional
+                    certificado antes de realizar qualquer operação financeira.
+                  </p>
+                  <p>
+                    Ao aceitar estes termos, você declara ter mais de 18 anos e compreender os riscos envolvidos
+                    em operações no mercado financeiro.
+                  </p>
                 </div>
-              )}
-            </div>
+
+                <div className="flex items-start gap-3 pt-4 border-t border-yellow-500/30">
+                  <Checkbox
+                    id="terms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                    className="mt-1"
+                  />
+                  <Label htmlFor="terms" className="text-sm text-gray-300 cursor-pointer leading-relaxed">
+                    Li e aceito os Termos de Uso e compreendo que este aplicativo não oferece recomendações de investimento.
+                    Declaro ter mais de 18 anos e estar ciente dos riscos do mercado financeiro.
+                  </Label>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={!acceptedTerms}
+                className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Criar Conta e Acessar Plataforma
+              </Button>
+
+              <p className="text-center text-sm text-gray-500">
+                Já tem uma conta?{" "}
+                <button
+                  type="button"
+                  onClick={() => setStep("dashboard")}
+                  className="text-emerald-500 hover:text-emerald-400 font-semibold"
+                >
+                  Fazer Login
+                </button>
+              </p>
+            </form>
           </div>
 
           <div className="text-center mt-6">
             <button
-              onClick={() => setView("landing")}
+              onClick={() => setStep("landing")}
               className="text-gray-500 hover:text-gray-300 text-sm"
             >
               ← Voltar para página inicial
@@ -659,7 +320,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setView("landing")}
+                onClick={() => setStep("landing")}
                 className="border-gray-700 text-gray-300 hover:bg-gray-800"
               >
                 Sair
